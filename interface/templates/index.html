@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sophi Interface</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="column left">
+
+            <h2 id="chat-title">Chat with Bot</h2>
+
+            <div class="selector">
+                <div class="model">
+                    <button id="refresh-model"><img class="refresh-icon" src="static/svg/refresh.svg" alt="Refresh"></button>
+                    <select id="model-selector">
+                        <option value="">Select a model</option>
+                    </select>
+                    <button id="submit-model">Load Model</button>
+                </div>
+
+                <div class="role">
+                    <button id="refresh-role"><img class="refresh-icon" src="static/svg/refresh.svg" alt="Refresh"></button>
+                    <input type="text" id="role-username-input" placeholder="Enter a username">
+                    <input type="text" id="role-assistant_name-input" placeholder="Enter an assistant name">
+                    <select id="role-selector">
+                        <option value="">Select a role</option>
+                    </select>
+                    <button id="submit-role">Load Role</button>
+                </div>
+
+            </div>
+
+            <div class="chat-box">
+                
+                <div class="messages-container">  
+                    <img class="block-icon" src="static/svg/lock-access-off.svg" alt="Block">
+                    <h2 class="block-message">Please select a model and role to start chatting</h2>
+                    <div id="messages"></div>  
+                </div>
+
+                <form id="message_form" class="message-form">
+                    <input type="text" id="message_input" class="message-input" name="message" autocomplete="off">
+                    <button type="submit" class="message-submit">Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="column right">
+            <h2>Settings</h2>
+            <form id="settings-form" method="POST">
+                <label for="tool_function_checkbox">Tool Function</label>
+                <input type="checkbox" id="tool_function_checkbox" name="tool_function_checkbox">
+                <input type="submit" value="Save Settings">
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function refreshModelOptions() {
+            $.getJSON('/get_model_options', function(data) {
+                $('#model-selector').empty(); // Clear existing options
+                $.each(data.options, function(index, option) {
+                    $('#model-selector').append($('<option>').text(option).val(option));
+                });
+            });
+        }
+
+        function refreshRoleOptions() {
+            $.getJSON('/get_role_options', function(data) {
+                $('#role-selector').empty(); // Clear existing options
+                $.each(data.options, function(index, option) {
+                    $('#role-selector').append($('<option>').text(option).val(option));
+                });
+            });
+        }
+
+        $('#refresh-model').click(refreshModelOptions());
+        $('#refresh-role').click(refreshRoleOptions());
+        refreshModelOptions();
+
+        function submitModelSelection() {
+            const selectedValue = $('#model-selector').val();
+            $.post('/submit_model_selection', { value: selectedValue }, function(response) {
+                checkAgentLoaded();
+                console.log(response);
+            });
+        }
+
+        function submitRoleSelection() {
+            const username = $('#role-username-input').val();
+            const assistant_name = $('#role-assistant_name-input').val();
+            const selectedValue = $('#role-selector').val();
+            $.post('/submit_role_selection', { username: username, assistant_name: assistant_name, value: selectedValue }, function(response) {
+                checkAgentLoaded();
+                console.log(response);
+            });
+        }
+
+        $('#submit-model').click(submitModelSelection);
+        $('#submit-role').click(submitRoleSelection);
+
+        function checkAgentLoaded() {
+            $.getJSON('/check_agent_loaded', function(data) {
+                if (data.loaded) {
+                    $('.message-input').prop('disabled', false); // Enable input
+                    $('.messages-container').removeClass('greyed-out'); // Remove greyed-out class
+                    $('.block-icon').css('display', 'none'); // Hide block icon
+                    $('.message-submit').prop('disabled', false); // Enable submit button
+                    $('.block-message').text(''); // Clear block message
+                } else {
+                    $('.message-input').prop('disabled', true); // Disable input
+                    $('.messages-container').addClass('greyed-out'); // Add greyed-out class
+                    $('.block-icon').css('display', 'block'); // Show block icon
+                    $('.message-submit').prop('disabled', true); // Disable submit button
+                    $('.block-message').text('Please select a model and role to start chatting'); // Display block message
+                }
+            });
+        }
+
+        checkAgentLoaded();
+
+        var conversation_history = [];
+
+        $(document).ready(function() {
+            $('#message_form').submit(function(e) {
+                e.preventDefault();
+
+                var message = $('#message_form input[name="message"]').val();
+
+                var user_message = "<div class='user-message'>You: " + message + "</div>";
+                $('#messages').append(user_message);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/process_message",
+                    data: {'message': message},
+                    dataType: "json",
+                    success: function(response) {
+                        conversation_history = response.messages;
+                        var message_text = "";
+                        for (var i = 0; i < conversation_history.length; i++) {
+                            message_text += conversation_history[i];
+                        }
+                        $('#messages').html(message_text);
+                    }
+                });
+                $('#message_input').val('');
+            });
+        });
+
+        const form = document.getElementById('settings-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            sendData(); // Call JavaScript function to send data
+        });
+
+        function sendData() {
+            const checkbox = document.getElementById('tool_function_checkbox');
+            const isChecked = checkbox.checked; // Get checkbox value
+
+            // Send data to Python function using AJAX
+            fetch('/tool_function_status', {
+                method: 'POST',
+                body: JSON.stringify({ isChecked }), // Send data as JSON
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle response from Python function (optional)
+                console.log(data);
+            })
+            .catch(error => console.error(error));
+        }
+    </script>
+</body>
+</html>

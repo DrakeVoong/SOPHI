@@ -1,0 +1,125 @@
+/* 
+background: #1a181c
+text: #c5a4e6
+accent1: #282629
+accent2: #424044
+accent3: #6b37a0
+accent4: #2e2d30
+*/
+
+body {
+  font-family: 'Cascadia Code';
+  background-color: #1a181c;
+  color: #c5a4e6;
+  margin: 0;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 75% 25%;
+  grid-template-rows: 1fr;
+  align-items: stretch;
+  margin: 10px;
+}
+
+.column {
+  background-color: #424044;
+  border-radius: 10px;
+  border: 4px solid #424044;
+  margin: 5px;
+  padding: 10px;
+}
+
+.selector {
+  background-color: #8f69a3;
+  width: 80%;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.model {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content:flex-start;
+}
+
+.role {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-start; 
+}
+
+.chat-box {
+  padding: 10px;
+  background-color: #2f2d30;
+  border-radius: 10px;
+  border: 4px solid #a77fbb;
+}
+
+.block-icon,
+.block-message {
+  position: relative;
+  z-index: 1;
+}
+
+.messages-container {
+  height: 70vh;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse;
+  border: 2px solid #ccc;
+  border: none;
+  z-index: 0;
+}
+
+.greyed-out {
+  background-color: #282629;
+}
+
+.block-icon {
+  margin: auto;
+  width: 50%;
+  height: 50%;
+}
+
+.block-message {
+  margin: auto;
+  color: #f15050;
+}
+
+.message-form {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 85% 15%;
+}
+
+.message-form input[type="text"] {
+  margin-right: 10%;
+}
+  
+.user-message {
+  /* Style user messages here */
+  background-color: #2e2d30;
+  padding: 10px;
+  color: #c5a4e6;
+  font-size: 16px;
+}
+
+.bot-message {
+  /* Style bot messages here */
+  background-color: #59575a;
+  padding: 10px;
+  color: #c5a4e6;
+  font-size: 16px;
+}
+
+#settings-form {
+  display: grid;
+  grid-template-columns: auto auto; /* Adjust width of input column as needed */
+}
+
+#settings-form input[type="submit"] {
+  grid-column: 1 / span 2; /* Span the entire grid for the submit button */
+}

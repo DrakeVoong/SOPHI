@@ -1,0 +1,19 @@
+name: Hermes-2-Pro-Mistral-7B
+repo_id: NousResearch/Hermes-2-Pro-Mistral-7B-GGUF
+repo_type: model
+model_file: Hermes-2-Pro-Mistral-7B.Q4_K_M.gguf
+model_type: mistral
+gpu_layers: 33
+context_length: 8192
+remove_length: 4
+batch_size: 160
+threads: 0
+threads_batch: 0
+rope_freq_base: 10000
+rope_freq_scale: 1
+template: 
+  instruct: "<|im_start|>system\n<INSTRUCTION><|im_end|><CONV_HISTORY>"
+  user: "\n<|im_start|>user\n<CONV><|im_end|>"
+  assistant: "\n<|im_start|>assistant\n<CONV><|im_end|>"
+  next: "\n<|im_start|>assistant"
+  stop_tokens: ["<|im_end|>", "<|im_start|>"]
