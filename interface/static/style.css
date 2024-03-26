@@ -92,11 +92,17 @@ body {
 .message-form {
   width: 100%;
   display: grid;
-  grid-template-columns: 85% 15%;
+  grid-template-columns: 95%  5%;
 }
 
-.message-form input[type="text"] {
+.message-form .message-input {
   margin-right: 10%;
+  resize: none;
+  border: none;
+}
+
+.message-form .message-submit {
+  border: none;
 }
   
 .user-message {
