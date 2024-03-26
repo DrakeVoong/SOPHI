@@ -129,3 +129,16 @@ body {
 #settings-form input[type="submit"] {
   grid-column: 1 / span 2; /* Span the entire grid for the submit button */
 }
+
+#settings-form #helper_agent_info {
+  grid-column: 1 / span 2;
+}
+
+#settings-form #helper_agents_available {
+  grid-column: 1 / span 2;
+}
+
+#settings-form .helper-agent-chain {
+  resize: none;
+  grid-column: 1 / span 2;
+}

@@ -29,7 +29,6 @@
                     </select>
                     <button id="submit-role">Load Role</button>
                 </div>
-
             </div>
 
             <div class="chat-box">
@@ -52,6 +51,11 @@
             <form id="settings-form" method="POST">
                 <label for="tool_function_checkbox">Tool Function</label>
                 <input type="checkbox" id="tool_function_checkbox" name="tool_function_checkbox">
+                <label for="helper_agent_checkbox">Helper Agent</label>
+                <input type="checkbox" id="helper_agent_checkbox" name="helper_agent_checkbox">
+                <h4 id="helper_agent_info" style="display: none;">Available Helper Agents</h3>
+                <p id="helper_agents_available" style="display: none;"></p>
+                <textarea id="helper_agent_textarea" style="display: none;" class="helper-agent-chain"></textarea>
                 <input type="submit" value="Save Settings">
             </form>
         </div>
@@ -109,6 +113,7 @@
                     $('.block-icon').css('display', 'none'); // Hide block icon
                     $('.message-submit').prop('disabled', false); // Enable submit button
                     $('.block-message').text(''); // Clear block message
+                    $('')
                 } else {
                     $('.message-input').prop('disabled', true); // Disable input
                     $('.messages-container').addClass('greyed-out'); // Add greyed-out class
@@ -158,6 +163,37 @@
             });
         });
 
+        $('#helper_agent_checkbox').change(function() {
+            if ($(this).is(':checked')) {
+                $('#helper_agent_textarea').show();
+                $('#helper_agent_textarea').prop('disabled', false);
+                $('#helper_agent_info').show();
+                $('#helper_agents_available').show();
+            } else {
+                $('#helper_agent_textarea').hide();
+                $('#helper_agent_textarea').prop('disabled', true);
+                $('#helper_agent_info').hide();
+                $('#helper_agents_available').hide();
+            }
+        });
+
+        function get_helper_agents() {
+            $.getJSON('/get_helper_agents', function(data) {
+                // Access helper agents HTML from data
+                var buttons_html = data.helper_agents;
+
+                // Set the HTML content of the paragraph
+                $('#helper_agents_available').html(buttons_html);
+            });
+        }
+
+        function callHelperAgent(agentName) {
+            var currentText = $('#helper_agent_textarea').val();
+            $('#helper_agent_textarea').val(currentText + '\n' + agentName);
+        }
+        
+        get_helper_agents();
+
         const form = document.getElementById('settings-form');
         form.addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent default form submission
@@ -166,12 +202,18 @@
 
         function sendData() {
             const checkbox = document.getElementById('tool_function_checkbox');
-            const isChecked = checkbox.checked; // Get checkbox value
+            const isToolFunctionChecked = checkbox.checked; // Get checkbox value
+
+            const helperAgentsCheckbox = document.getElementById('helper_agent_checkbox');
+            const isHelperAgentsChecked = helperAgentsCheckbox.checked; // Get helper agents checkbox value
+
+            const textarea = document.getElementById('helper_agent_textarea');
+            const helperAgentsChain = textarea.value; // Get textarea value
 
             // Send data to Python function using AJAX
             fetch('/tool_function_status', {
                 method: 'POST',
-                body: JSON.stringify({ isChecked }), // Send data as JSON
+                body: JSON.stringify({ isToolFunctionChecked, isHelperAgentsChecked, helperAgentsChain }), // Send data as JSON
                 headers: {
                     "Content-Type": "application/json"
                 }

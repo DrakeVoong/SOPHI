@@ -10,6 +10,7 @@ import os
 from LLM.scripts.mistral import Mistral_OpenOrca
 from roles.script.sophi import Sophi
 from roles.script.tool import Tool
+from roles.script.helper_roles import Helper_Role
 from agent import Agent
 
 from modules.google_search.google_search import google_search
@@ -35,12 +36,15 @@ conversation_history = []
 
 tool_functions = [google_search]
 
-toggle_value = False
+tool_function_status = False
+helper_agent_status = False
+helper_agent_chain = ''
 
 username = None
 assistant_name = None
 
 role = None
+helper_agent = None
 tool = None
 mistral = None
 mistral_model = None
@@ -59,8 +63,12 @@ def call_functions(tool_function, *args):
     return None
 
 def chat_response(message):
-    global toggle_value
-    if toggle_value:
+    global tool_function_status
+    global helper_agent_status
+    global helper_agent_chain
+    global helper_agent
+
+    if tool_function_status:
         tool_message = sophi_agent.generate_response(message, tool, mistral, mistral_model)
         if not tool_message.startswith("None"):
             #convert str to json
@@ -83,6 +91,17 @@ def chat_response(message):
             message = f"{message}\n\nInformation from tool functions:\n{tool_response}"
 
 
+    if helper_agent_status and helper_agent_chain != '':
+        helper_message = message
+        phases = helper_agent_chain.split('\n')
+        message += "\n\nThe following information is from various AI agents and not from the user."
+        for phase in phases:
+            helper_agent.change_role(f'roles/prompt/helper_roles/{phase}.txt')
+            helper_message = sophi_agent.generate_response(helper_message, helper_agent, mistral, mistral_model)
+
+            message += f"\nInformation from {phase} agent:\n\n{helper_message}"
+
+    print(message, helper_agent_status, helper_agent_chain)
     sophi_response = sophi_agent.generate_response(message, role, mistral, mistral_model)
 
     return sophi_response
@@ -153,14 +172,37 @@ def check_agent_loaded():
 
 @app.route('/tool_function_status', methods=['POST'])
 def on_tool_function_change():
-    global toggle_value
+    global tool_function_status
+    global helper_agent_status
+    global helper_agent_chain
+    global helper_agent
+
     data = request.get_json()
 
-    is_checked = data.get('isChecked')
-    toggle_value = is_checked
+    tool_function_status = data.get('isToolFunctionChecked')
+    helper_agent_status = data.get('isHelperAgentsChecked')
+    helper_agent_chain = data.get('helperAgentsChain')
+
+    if helper_agent_status:
+        helper_agent = Helper_Role('user', 'assistant')
 
     response = {'message': 'Data received successfully!'}
     return jsonify(response)
+
+HELPER_AGENT_PATH = 'roles/prompt/helper_roles/'
+
+@app.route('/get_helper_agents', methods=['GET', 'POST'])
+def get_helper_agents():
+    dir_list = os.listdir(HELPER_AGENT_PATH)
+    dir_list = [agent.replace('.txt', '') for agent in dir_list]
+
+    
+    buttons_html = ""
+    for agent in dir_list:
+        button_html = f'<button name="{agent}" onclick="callHelperAgent(\'{agent}\')">{agent}</button>'
+        buttons_html += button_html
+
+    return jsonify({'helper_agents': buttons_html})
 
 @app.route('/process_message', methods=['POST'])
 def process_message():

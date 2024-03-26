@@ -55,9 +55,7 @@ class Agent():
         role.conversation_history.append(message_metadata)
 
         instruction = role.create_instruction({'message': message})
-        conversation = model.create_conversation(role.username, role.assistant_name, role.conversation_history)
-
-        prompt = instruction + conversation
+        prompt = model.create_conversation(instruction, role.username, role.assistant_name, role.conversation_history)
 
         start = time.time()
         response, in_tokens, out_tokens = model.generate(prompt, LLM_model, role.role_settings)

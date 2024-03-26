@@ -13,9 +13,10 @@ class Mistral_OpenOrca(Base_Model):
         super().__init__(config_path)
 
 
-    def create_conversation(self, username, assistant_name, conversation_history) -> str:
+    def create_conversation(self, instruction, username, assistant_name, conversation_history) -> str:
         
-        conversation = ''
+
+        conversation = ""
 
         # Structure the conversation history into user to assistant messages
         for i, message in enumerate(conversation_history):
@@ -27,10 +28,14 @@ class Mistral_OpenOrca(Base_Model):
                 conversation += self.model_settings['template']['assistant'].replace("<CONV>", message)
             else:
                 log.error(f"Error: Invalid role '{message['role']}'")
-                
+
+
         conversation += self.model_settings['template']['next'] + f"\n{assistant_name}:"
+
+        prompt = self.model_settings['template']['instruct'].replace("<INSTRUCTION>", instruction)
+        prompt = prompt.replace("<CONV_HISTORY>", conversation)
         
-        return conversation
+        return prompt
     
     def truncate_conversation_history(self) -> list:
         removed_conversation = []
