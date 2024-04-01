@@ -67,7 +67,8 @@ class Base_Model():
                     n_threads_batch=self.model_settings['threads_batch'],
                     rope_freq_scale=self.model_settings['rope_freq_scale'],
                     rope_freq_base=self.model_settings['rope_freq_base'],
-                    verbose=False
+                    verbose=True,
+                    use_mlock=True
                     )
         
         log.info(f"Model created from '{model_path}'")
@@ -83,11 +84,11 @@ class Base_Model():
                                         top_k=role_settings['top_k'],
                                         repeat_penalty=role_settings['repetition_penality'],
                                         stop=self.model_settings['template']['stop_tokens'],
+                                        tfs_z=100,
                                         )
         
         generated_text = results['choices'][0]['text']
         in_tokens = results['usage']['prompt_tokens']
         out_tokens = results['usage']['completion_tokens']
         
-        log.info(f"Response Generated")
         return generated_text, in_tokens, out_tokens

@@ -96,12 +96,13 @@ def chat_response(message):
         phases = helper_agent_chain.split('\n')
         message += "\n\nThe following information is from various AI agents and not from the user."
         for phase in phases:
+            if len(phase) == 0:
+                continue
             helper_agent.change_role(f'roles/prompt/helper_roles/{phase}.txt')
             helper_message = sophi_agent.generate_response(helper_message, helper_agent, mistral, mistral_model)
 
             message += f"\nInformation from {phase} agent:\n\n{helper_message}"
 
-    print(message, helper_agent_status, helper_agent_chain)
     sophi_response = sophi_agent.generate_response(message, role, mistral, mistral_model)
 
     return sophi_response
@@ -116,6 +117,7 @@ MODEL_SETTINGS_PATH = "LLM/settings/"
 @app.route('/get_model_options')
 def get_model_options():
     dir_list = os.listdir(MODEL_SETTINGS_PATH)
+    dir_list.reverse()
     return jsonify({'options': dir_list})
 
 ROLE_SETTINGS_PATH = "roles/settings/"
@@ -123,6 +125,7 @@ ROLE_SETTINGS_PATH = "roles/settings/"
 @app.route('/get_role_options')
 def get_role_options():
     dir_list = os.listdir(ROLE_SETTINGS_PATH)
+    dir_list.reverse()
 
     # Remove tool.yaml
     dir_list.remove('tool.yaml')
@@ -204,6 +207,16 @@ def get_helper_agents():
 
     return jsonify({'helper_agents': buttons_html})
 
+@app.route('/unload_model')
+def unload_model():
+    global mistral
+    global mistral_model
+
+    mistral = None
+    mistral_model = None
+
+    return jsonify({'text': 'Model unloaded successfully!'})
+
 @app.route('/process_message', methods=['POST'])
 def process_message():
     message = request.form['message']
@@ -223,4 +236,4 @@ def process_message():
 
 if __name__ == '__main__':
     print("Starting Flask server...on http://127.0.0.1:5000")
-    app.run(debug=False, port=5000)
+    app.run(debug=True, port=5000)
