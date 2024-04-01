@@ -14,27 +14,81 @@ body {
   margin: 0;
 }
 
+#main-container {
+  border-radius: 10px;
+  margin: 10px;
+  background-color: #4d4b4e;
+}
+
+.tab-button {
+  background-color: #282629;
+  color: #c5a4e6;
+  border: none;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.tab-button.clicked {
+  background-color: #c5a4e6;
+  color: #282629;
+}
+
+.tab-button:hover {
+  background-color: #424044;
+}
+
 .container {
+  border: 3px solid #1c1b1d;
+  border-radius: 10px;
+  background-color: #2d2b2e;
+}
+
+
+#role-editor {
+  display: none;
+  margin: 10px;
+}
+
+.role-editor-container {
+  margin: 5px;
+  background-color: #424044;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.role-prompt {
+  display: inline-block
+}
+
+#role-prompt-text {
+  background-color: #232025;
+  color: #c5a4e6;
+  resize: none;
+  border: none;
+}
+
+#Chat {
   display: grid;
-  grid-template-columns: 75% 25%;
-  grid-template-rows: 1fr;
-  align-items: stretch;
+  grid-template-columns: 85% 15%;
+  grid-template-rows: 100%;
   margin: 10px;
 }
 
 .column {
   background-color: #424044;
   border-radius: 10px;
-  border: 4px solid #424044;
   margin: 5px;
   padding: 10px;
 }
 
 .selector {
-  background-color: #8f69a3;
-  width: 80%;
-  padding: 5px;
+  background-color: #2f2d30;
+  width: fit-content;
+  padding: 10px;
   border-radius: 5px;
+  margin: 5px;
 }
 
 .model {
@@ -52,10 +106,11 @@ body {
 }
 
 .chat-box {
-  padding: 10px;
+  padding: 5px;
   background-color: #2f2d30;
   border-radius: 10px;
   border: 4px solid #a77fbb;
+  margin: 5px;
 }
 
 .block-icon,
@@ -80,8 +135,8 @@ body {
 
 .block-icon {
   margin: auto;
-  width: 50%;
-  height: 50%;
+  width: 35%;
+  height: 35%;
 }
 
 .block-message {
@@ -103,6 +158,10 @@ body {
 
 .message-form .message-submit {
   border: none;
+}
+
+.send-icon {
+  margin: auto;
 }
   
 .user-message {
